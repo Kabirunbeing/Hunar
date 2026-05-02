@@ -33,27 +33,27 @@ export default function ProfilePanel({
   const toneClass = toneMap[worker.avatarTone] || toneMap.sunset
 
   return (
-    <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+    <section className="mt-8 sm:mt-10 rounded-[24px] sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xl">
       <button
-        className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300"
+        className="w-full sm:w-auto rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300"
         onClick={onClose}
       >
-        Back to listings
+        ← Back to listings
       </button>
       <div className="mt-6 grid gap-6">
-        <div className="grid gap-4">
+        <div className="grid gap-4 sm:gap-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div
-                className={`flex h-16 w-16 items-center justify-center rounded-2xl text-lg font-semibold text-white ${toneClass}`}
+                className={`flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl text-lg font-semibold text-white ${toneClass} uppercase`}
               >
                 {initials}
               </div>
-              <div>
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-emerald-600">
+              <div className="min-w-0">
+                <p className="text-[0.6rem] sm:text-[0.65rem] font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-emerald-600">
                   {worker.category}
                 </p>
-                <h2 className="text-2xl font-semibold text-slate-900">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">
                   {worker.name}
                 </h2>
                 <p className="text-sm text-slate-500">
@@ -61,7 +61,9 @@ export default function ProfilePanel({
                 </p>
               </div>
             </div>
-            <Stars rating={worker.rating} />
+            <div className="flex sm:block justify-start">
+              <Stars rating={worker.rating} />
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -69,34 +71,34 @@ export default function ProfilePanel({
             {worker.verified && <Badge label="Verified" variant="verified" />}
           </div>
 
-          <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 sm:grid-cols-4">
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+            <div className="p-1">
+              <p className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
                 Experience
               </p>
-              <span>{worker.years} years</span>
+              <span className="font-semibold text-slate-900">{worker.years} years</span>
             </div>
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Response time
+            <div className="p-1">
+              <p className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
+                Response
               </p>
-              <span>{worker.responseTime}</span>
+              <span className="font-semibold text-slate-900">{worker.responseTime}</span>
             </div>
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Completed jobs
+            <div className="p-1">
+              <p className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
+                Jobs
               </p>
-              <span>{worker.completedJobs}</span>
+              <span className="font-semibold text-slate-900">{worker.completedJobs}</span>
             </div>
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Contact
+            <div className="p-1">
+              <p className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
+                Phone
               </p>
-              <span>{worker.phone}</span>
+              <span className="font-semibold text-slate-900">{worker.phone}</span>
             </div>
           </div>
 
-          <p className="text-sm text-slate-600">{worker.bio}</p>
+          <p className="text-[14px] leading-relaxed text-slate-600">{worker.bio}</p>
 
           <div className="flex flex-wrap gap-2">
             {worker.skills.map((skill) => (

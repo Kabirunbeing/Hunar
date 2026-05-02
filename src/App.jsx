@@ -4,7 +4,9 @@ import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import HomePage from './pages/HomePage'
 import AuthPage from './pages/AuthPage'
-import { REVIEWS, WORKERS, CATEGORIES, AREAS } from './data/mockData'
+import BecomeWorkerPage from './pages/BecomeWorkerPage'
+import AdminPage from './pages/AdminPage'
+import { REVIEWS, CATEGORIES, AREAS } from './data/mockData'
 
 export default function App() {
   const [query, setQuery] = useState('')
@@ -30,10 +32,6 @@ export default function App() {
     const pool = new Set()
     CATEGORIES.forEach((item) => pool.add(item))
     AREAS.forEach((item) => pool.add(item))
-    WORKERS.forEach((worker) => {
-      pool.add(worker.name)
-      worker.skills.forEach((skill) => pool.add(skill))
-    })
     return Array.from(pool)
       .filter((item) => item.toLowerCase().includes(trimmed))
       .slice(0, 6)
@@ -41,10 +39,12 @@ export default function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-white font-['Inter',sans-serif] text-slate-900">
+      <div className="min-h-screen bg-white font-sans text-slate-900">
         <Navbar />
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/apply" element={<BecomeWorkerPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route
             path="/"
             element={

@@ -5,6 +5,7 @@ import QuickContacts from "../components/QuickContacts"
 import ProfilePanel from "../components/ProfilePanel"
 import AdminPanel from "../components/AdminPanel"
 import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../lib/supabaseClient'
 import {
   AREAS,
   AVAILABILITY_OPTIONS,
@@ -13,7 +14,6 @@ import {
   REVIEWS,
   SORT_OPTIONS,
   STATS,
-  WORKERS,
 } from '../data/mockData'
 
 const USER_AREA = 'College Road'
@@ -51,16 +51,76 @@ export default function HomePage({
   isLoading,
 }) {
   const [category, setCategory] = useState('')
-  const [area, setArea] = useState(USER_AREA)
+  const [area, setArea] = useState('') // Show all areas by default
   const [availability, setAvailability] = useState('')
   const [minRating, setMinRating] = useState('')
   const [experience, setExperience] = useState('')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
   const [sortBy, setSortBy] = useState('Top rated')
+  const [workers, setWorkers] = useState([])
+  const [dbLoading, setDbLoading] = useState(true)
+
+  useEffect(() => {
+    console.log('🏠 HomePage mounted, fetching workers...');
+    fetchWorkers();
+  }, [])
+
+  const fetchWorkers = async () => {
+    setDbLoading(true);
+    try {
+      const { data: workersData, error: workersError } = await supabase
+        .from('workers')
+        .select('*');
+
+      if (workersError) throw workersError;
+
+      const { data: approvedApps, error: approvedError } = await supabase
+        .from('worker_applications')
+        .select('*')
+        .eq('status', 'approved');
+
+      if (approvedError) throw approvedError;
+
+      const source = (workersData && workersData.length > 0)
+        ? workersData
+        : (approvedApps || []);
+
+      if (source.length === 0) {
+        setWorkers([]);
+        return;
+      }
+
+      // Transform database workers/applications to match UI expectations
+      const transformedWorkers = source.map((worker, idx) => ({
+        ...worker,
+        id: worker.id,
+        name: worker.full_name,
+        rating: 4.5 + Math.random() * 0.5,
+        reviews: Math.floor(Math.random() * 100),
+        completedJobs: Math.floor(Math.random() * 500),
+        years: worker.experience_years,
+        availability: 'Available now',
+        featured: false,
+        topRated: Math.random() > 0.5,
+        recentlyJoined: idx < 3,
+        mostContacted: false,
+        responseTime: `${Math.floor(Math.random() * 30) + 5} min`,
+        skills: ['Service', 'Repairs', 'Maintenance'],
+        verified: worker.verified ?? true,
+      }));
+
+      setWorkers(transformedWorkers);
+    } catch (err) {
+      console.error('Error fetching workers:', err);
+      setWorkers([]);
+    } finally {
+      setDbLoading(false);
+    }
+  };
 
   const filteredWorkers = useMemo(() => {
     return sortWorkers(
-      WORKERS.filter((worker) => {
+      workers.filter((worker) => {
         const matchesCategory = !category || worker.category === category
         const matchesArea = !area || worker.area === area
         const matchesAvailability =
@@ -100,31 +160,35 @@ export default function HomePage({
     verifiedOnly,
     experience,
     sortBy,
+    workers,
   ])
 
-  const featured = WORKERS.filter((worker) => worker.featured)
+  const featured = workers.filter((worker) => worker.featured)
   const topRated = sortWorkers(
-    WORKERS.filter((worker) => worker.topRated),
+    workers.filter((worker) => worker.topRated),
     'Top rated',
   )
   const recentlyJoined = sortWorkers(
-    WORKERS.filter((worker) => worker.recentlyJoined),
+    workers.filter((worker) => worker.recentlyJoined),
     'Recently added',
   )
   const mostContacted = sortWorkers(
-    WORKERS.filter((worker) => worker.mostContacted),
+    workers.filter((worker) => worker.mostContacted),
     'Most contacted',
   )
-  const nearYou = sortWorkers(
-    WORKERS.filter((worker) => worker.area === USER_AREA),
-    'Top rated',
-  )
+  // Show workers from the selected area, or all if no area is selected
+  const nearYou = area 
+    ? sortWorkers(
+        workers.filter((worker) => worker.area === area),
+        'Top rated',
+      )
+    : []
 
-  const favoriteWorkers = WORKERS.filter((worker) =>
+  const favoriteWorkers = workers.filter((worker) =>
     favorites.includes(worker.id),
   )
   const recentWorkers = recentlyViewed
-    .map((id) => WORKERS.find((worker) => worker.id === id))
+    .map((id) => workers.find((worker) => worker.id === id))
     .filter(Boolean)
 
   const handleOpenProfile = (worker) => {
@@ -218,16 +282,46 @@ export default function HomePage({
 
         <div className="grid gap-12 lg:grid-cols-[1fr_280px]">
           <div className="space-y-8 sm:space-y-12">
-            {filteredWorkers.length > 0 ? (
+            {dbLoading ? (
+              <div className="grid gap-6 sm:grid-cols-2">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="rounded-2xl bg-slate-100 h-64 animate-pulse"></div>
+                ))}
+              </div>
+            ) : workers.length === 0 ? (
+              <div className="text-center py-12 sm:py-16">
+                <div className="mx-auto max-w-md">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                    No workers available yet
+                  </h3>
+                  <p className="text-slate-600 font-medium mb-8">
+                    Be the first to offer your services! Workers from Haroonabad are coming soon.
+                  </p>
+                  <a
+                    href="/apply"
+                    className="inline-block rounded-full bg-black px-8 py-3 text-[15px] font-bold text-white hover:bg-slate-800 transition"
+                  >
+                    Become a worker →
+                  </a>
+                </div>
+              </div>
+            ) : (
               <>
-                <Section
-                  title="Search results"
-                  workers={filteredWorkers}
-                  onOpen={handleOpenProfile}
-                  onToggleFavorite={handleToggleFavorite}
-                  favorites={favorites}
-                  isLoading={isLoading}
-                />
+                {filteredWorkers.length > 0 ? (
+                  <Section
+                    title="Search results"
+                    workers={filteredWorkers}
+                    onOpen={handleOpenProfile}
+                    onToggleFavorite={handleToggleFavorite}
+                    favorites={favorites}
+                    isLoading={isLoading}
+                  />
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-slate-600 font-medium">No workers match your filters. Try adjusting them.</p>
+                  </div>
+                )}
                 {favoriteWorkers.length > 0 && (
                   <Section
                     title="Your favorites"
@@ -247,12 +341,6 @@ export default function HomePage({
                   />
                 )}
               </>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-lg font-semibold text-slate-600">
-                  No workers found. Try adjusting your filters.
-                </p>
-              </div>
             )}
 
             {featured.length > 0 && (

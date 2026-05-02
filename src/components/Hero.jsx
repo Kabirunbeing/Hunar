@@ -1,4 +1,5 @@
-﻿import SearchBar from "./SearchBar"
+﻿import { useNavigate } from "react-router-dom"
+import SearchBar from "./SearchBar"
 
 export default function Hero({
   query,
@@ -6,6 +7,8 @@ export default function Hero({
   suggestions,
   onSuggestionSelect,
 }) {
+  const navigate = useNavigate();
+
   return (
     <header className="bg-white text-slate-900 pb-16 font-['Inter',sans-serif]">
       {/* Main Content */}
@@ -22,8 +25,11 @@ export default function Hero({
           <button className="w-full sm:w-auto rounded-full bg-[#111] px-8 py-3.5 text-[15px] font-bold text-white transition hover:bg-black">
             Find a worker
           </button>
-          <button className="w-full sm:w-auto rounded-full border border-slate-200 bg-white px-8 py-3.5 text-[15px] font-bold text-slate-900 transition hover:bg-slate-50">
-            Become a partner →
+          <button 
+            onClick={() => navigate('/apply')}
+            className="w-full sm:w-auto rounded-full border border-slate-200 bg-white px-8 py-3.5 text-[15px] font-bold text-slate-900 transition hover:bg-slate-50"
+          >
+            Become a worker →
           </button>
         </div>
 
