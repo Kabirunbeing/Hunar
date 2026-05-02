@@ -20,14 +20,14 @@ export default function FiltersBar({
   sortOptions,
 }) {
   return (
-    <div className="mb-8 mt-12 flex flex-wrap items-center justify-between border-b border-[#eee] pb-4">
-      <div className="flex flex-wrap items-center gap-6">
+    <div className="mb-8 mt-8 sm:mt-12 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#eee] pb-4 sm:pb-4 gap-4">
+      <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-3 sm:gap-6">
         <label className="relative flex items-center rounded-full bg-[#f5f5f5] p-1">
           <select
             id="category"
             value={category}
             onChange={(event) => onCategoryChange(event.target.value)}
-            className="appearance-none rounded-full bg-white py-1.5 pl-4 pr-10 text-[13px] font-bold text-black shadow-sm outline-none cursor-pointer"
+            className="w-full appearance-none rounded-full bg-white py-1 sm:py-1.5 pl-3 sm:pl-4 pr-8 sm:pr-10 text-[11px] sm:text-[13px] font-bold text-black shadow-sm outline-none cursor-pointer"
           >
             {categories.map((item) => (
               <option key={item} value={item}>

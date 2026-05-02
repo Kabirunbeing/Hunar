@@ -1,5 +1,5 @@
-export default function QuickContacts({ workers }) {
-  if (workers.length === 0) return null
+export default function QuickContacts({ workers = [] }) {
+  if (!workers || workers.length === 0) return null
 
   return (
     <div className="mb-8 grid gap-3">
